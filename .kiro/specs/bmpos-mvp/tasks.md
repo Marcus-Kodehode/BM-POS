@@ -66,26 +66,26 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Complete database schema with models, relationships, and helper functions.
 
-- [ ] 2.1 Create items migration
+- [x] 2.1 Create items migration
   - Columns: `id`, `name`, `description`, `purchase_price`, `target_price`, `status`, `created_at`, `updated_at`, `deleted_at`
   - _Requirements: 3.1, 9.1_
 
-- [ ] 2.2 Create orders migration
+- [x] 2.2 Create orders migration
   - Columns: `id`, `order_number` (unique), `customer_id` (FK), `status`, `total_amount`, `notes`, `created_at`, `updated_at`, `deleted_at`
   - _Requirements: 4.1, 9.1_
 
-- [ ] 2.3 Create order_lines migration
+- [x] 2.3 Create order_lines migration
   - Columns: `id`, `order_id` (FK), `item_id` (FK), `unit_price`, `quantity`, `deleted_at`
   - _Requirements: 4.4, 9.1_
 
-- [ ] 2.4 Create payments migration
+- [x] 2.4 Create payments migration
   - Columns: `id`, `order_id` (FK), `amount`, `paid_at`, `payment_method`, `note`, `deleted_at`
   - _Requirements: 5.1, 5.2, 5.3, 9.1_
 
-- [ ] 2.5 Run migrations
+- [x] 2.5 Run migrations
   - Execute `php artisan migrate`
 
-- [ ] 2.6 Create Item model
+- [x] 2.6 Create Item model
   - Add `SoftDeletes` trait
   - Add `$fillable`: `name`, `description`, `purchase_price`, `target_price`, `status`
   - Add `$casts`: `purchase_price` => `integer`, `target_price` => `integer`
@@ -93,7 +93,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Add `isAvailable()` method
   - _Requirements: 3.1, 3.2, 3.7_
 
-- [ ] 2.7 Create Order model
+- [x] 2.7 Create Order model
   - Add `SoftDeletes` trait
   - Add `$fillable`: `order_number`, `customer_id`, `status`, `total_amount`, `notes`
   - Add `$casts`: `total_amount` => `integer`
@@ -103,7 +103,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Add method: `isOverpaid()`
   - _Requirements: 4.1, 4.3, 4.7, 5.4, 5.5_
 
-- [ ] 2.8 Create OrderLine model
+- [x] 2.8 Create OrderLine model
   - Add `SoftDeletes` trait
   - Add `$fillable`: `order_id`, `item_id`, `unit_price`, `quantity`
   - Add `$casts`: `unit_price` => `integer`, `quantity` => `integer`
@@ -111,21 +111,21 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Add accessor: `getTotalAttribute()` (unit_price * quantity)
   - _Requirements: 4.4_
 
-- [ ] 2.9 Create Payment model
+- [x] 2.9 Create Payment model
   - Add `SoftDeletes` trait
   - Add `$fillable`: `order_id`, `amount`, `paid_at`, `payment_method`, `note`
   - Add `$casts`: `amount` => `integer`, `paid_at` => `date`
   - Add relationship: `order()`
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 2.10 Create format_nok() helper
+- [x] 2.10 Create format_nok() helper
   - Create `app/helpers.php`
   - Add `format_nok(int $amount): string` function
   - Register in `composer.json` autoload.files
   - Run `composer dump-autoload`
   - _Requirements: 8.2, 8.3_
 
-- [ ] 2.11 Create OrderPolicy
+- [x] 2.11 Create OrderPolicy
   - Add `view()` method: admin or owner
   - Add `update()` method: admin only
   - Add `delete()` method: admin only
@@ -140,7 +140,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Admin can see key metrics and navigate to management pages.
 
-- [ ] 3.1 Create admin dashboard controller
+- [x] 3.1 Create admin dashboard controller
   - Calculate total outstanding (sum across all open orders)
   - Count open orders
   - Count active customers
@@ -148,21 +148,21 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Get top 10 customers by outstanding (desc)
   - _Requirements: 2.2, 2.3, 2.4_
 
-- [ ] 3.2 Build admin dashboard view
+- [x] 3.2 Build admin dashboard view
   - 4 summary cards (total outstanding, open orders, customer count, items by status)
   - Table of top customers with outstanding balance
   - Links to customer detail pages
   - Use design system components (cards, badges, tables)
   - _Requirements: 2.2, 2.3, 2.4_
 
-- [ ] 3.3 Create admin layout with sidebar
+- [x] 3.3 Create admin layout with sidebar
   - Sidebar navigation: Dashboard, Kunder, Varer, Ordrer
   - Collapsible on mobile
   - Active state highlighting
   - Profile dropdown in top right
   - _Requirements: Design system_
 
-**Checkpoint:** Navigate to `/admin`, see metrics, click through sidebar links (even if pages don't exist yet).
+**Checkpoint:** Navigate to `/admin`, see metrics, click through sidebar links (even if pages don't exist yet). ✅ Complete
 
 ---
 
