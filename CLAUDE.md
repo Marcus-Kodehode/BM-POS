@@ -80,7 +80,7 @@ There is **no public registration route**. The Breeze register route must be rem
 |---|---|---|
 | View own profile | ✅ | ✅ |
 | Edit own profile (name, email, password) | ✅ | ✅ |
-| Delete own account | ✅ | ✅ (own only) |
+| Delete own account | ✅ | ✅ (soft delete with outstanding check) |
 | View any customer's data | ✅ | ❌ |
 | Create / edit / delete customers | ✅ | ❌ |
 | Create / edit / delete items | ✅ | ❌ |
@@ -91,13 +91,18 @@ There is **no public registration route**. The Breeze register route must be rem
 | View own orders (read-only) | ✅ | ✅ (own only) |
 | View own dashboard (read-only) | ✅ | ✅ |
 | Access `/admin/*` routes | ✅ | ❌ (403) |
+| View deleted customers | ✅ | ❌ |
+| Permanently delete customer | ✅ | ❌ |
 
 ### 3.3 Key Security Rules
 - **No data leakage**: Customer queries must always be scoped via `auth()->user()->orders()` or equivalent. Never use a free query like `Order::find($id)` without policy check.
 - **Policies enforce access on show routes**: `OrderPolicy` is mandatory.
 - **Admin middleware blocks all non-admin users** from `/admin/*`.
-- **Customer can only delete their own account**. Confirm with a modal before executing.
-- **Admin can delete any customer account** via admin routes (separate from profile deletion).
+- **Customer can only soft-delete their own account**. Confirm with a modal before executing. If customer has outstanding balance, show warning but allow deletion.
+- **Admin can soft-delete any customer account** via admin routes (separate from profile deletion).
+- **Admin can view soft-deleted customers** and see their outstanding balance before permanent deletion.
+- **Admin can permanently delete customer accounts** (hard delete) after reviewing soft-deleted accounts.
+- **New customers must change temporary password on first login**. Use `password_change_required` flag on users table.
 
 ---
 
@@ -113,8 +118,10 @@ There is **no public registration route**. The Breeze register route must be rem
 | email | string | Unique, required |
 | password | string | Hashed |
 | role | string | `admin` or `customer`. Default: `customer` |
+| password_change_required | boolean | Default: false. Set to true when admin creates customer with temp password |
 | created_at | timestamp | |
 | updated_at | timestamp | |
+| deleted_at | timestamp | Nullable. For soft deletes |
 
 #### `items` (Inventory / Lager)
 | Column | Type | Notes |
@@ -127,17 +134,20 @@ There is **no public registration route**. The Breeze register route must be rem
 | status | string | `available`, `reserved`, `sold`, `archived` |
 | created_at | timestamp | |
 | updated_at | timestamp | |
+| deleted_at | timestamp | Nullable. For soft deletes |
 
 #### `orders`
 | Column | Type | Notes |
 |---|---|---|
 | id | bigint (PK) | |
+| order_number | string | Unique, auto-generated (e.g., "2025-001"). For customer-facing reference |
 | customer_id | bigint (FK → users.id) | Required |
 | status | string | `open`, `closed`, `cancelled` |
 | total_amount | integer | In **øre**. See 4.3 for calculation rules |
 | notes | text | Nullable |
 | created_at | timestamp | |
 | updated_at | timestamp | |
+| deleted_at | timestamp | Nullable. For soft deletes |
 
 #### `order_lines`
 | Column | Type | Notes |
@@ -146,7 +156,8 @@ There is **no public registration route**. The Breeze register route must be rem
 | order_id | bigint (FK → orders.id) | |
 | item_id | bigint (FK → items.id) | |
 | unit_price | integer | In **øre** |
-| quantity | integer | Default: 1 |
+| quantity | integer | Default: 1. Can be > 1 for multiple units of same item |
+| deleted_at | timestamp | Nullable. For soft deletes |
 
 #### `payments`
 | Column | Type | Notes |
@@ -155,7 +166,9 @@ There is **no public registration route**. The Breeze register route must be rem
 | order_id | bigint (FK → orders.id) | |
 | amount | integer | In **øre** |
 | paid_at | date | Required |
+| payment_method | string | Nullable. E.g., "kontant", "bank", "vipps" |
 | note | string | Nullable |
+| deleted_at | timestamp | Nullable. For soft deletes |
 
 ### 4.2 Eloquent Relations
 
@@ -187,6 +200,10 @@ Implement as **accessor methods** on the `Order` model:
 - `getPaidAmountAttribute()`
 - `getOutstandingAmountAttribute()`
 
+#### Overpayment warning:
+- If `outstanding < 0` (customer paid more than total), show a warning badge in admin UI: "Overbetalt: X kr"
+- This can happen if admin overrides `total_amount` downward after payments are registered
+
 #### Order `total_amount` logic:
 - **Default**: `total_amount` is set to the sum of `(unit_price × quantity)` across all `order_lines` when lines are added.
 - **Admin can override**: Admin may manually change `total_amount` on the order detail page (e.g., to apply a discount or custom agreement).
@@ -196,10 +213,17 @@ Implement as **accessor methods** on the `Order` model:
 | Transition | When it happens |
 |---|---|
 | `available` → `reserved` | Automatically when the item is added to an `order_line` |
-| `reserved` → `available` | Automatically if the order is **cancelled** |
+| `reserved` → `available` | Automatically if the order is **cancelled** and order_line is removed |
 | `reserved` → `sold` | Automatically when the order is **closed** |
 | Any → `archived` | Manually by admin |
 | `sold` / `archived` | Cannot be added to a new order |
+
+#### Order cancellation rules:
+- When an order is cancelled:
+  - All `order_lines` for that order are soft-deleted
+  - All `payments` for that order are soft-deleted (preserved for audit trail)
+  - All items in the order revert from `reserved` to `available`
+- Cancelled orders remain visible in admin but are excluded from customer dashboard by default
 
 ### 4.4 Currency Formatting
 
@@ -229,12 +253,12 @@ No `/register` route. It must be removed or commented out.
 
 | Method | Route | Controller / Action | Notes |
 |---|---|---|---|
-| GET | `/dashboard` | `CustomerDashboardController@index` | Read-only overview |
-| GET | `/orders` | `CustomerOrderController@index` | List own orders only |
+| GET | `/dashboard` | `CustomerDashboardController@index` | Read-only overview. Shows password change alert if required. |
+| GET | `/orders` | `CustomerOrderController@index` | List own orders only (excludes cancelled) |
 | GET | `/orders/{order}` | `CustomerOrderController@show` | Policy-protected |
 | GET | `/profile` | Breeze ProfileController | Edit own profile |
-| PATCH | `/profile` | Breeze ProfileController | Update name/email/password |
-| DELETE | `/profile` | `ProfileDeletionController` | Delete own account (with confirmation) |
+| PATCH | `/profile` | Breeze ProfileController | Update name/email/password. Sets `password_change_required = false` on password update. |
+| DELETE | `/profile` | `ProfileDeletionController` | Soft-delete own account (with confirmation and outstanding warning) |
 
 ### 5.3 Admin Routes (auth + admin middleware)
 
@@ -248,13 +272,16 @@ All routes below are prefixed with `/admin` and protected by the `EnsureUserIsAd
 #### Customers
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/admin/customers` | List all customers |
-| GET | `/admin/customers/create` | Create customer form |
-| POST | `/admin/customers` | Store new customer |
+| GET | `/admin/customers` | List all active customers |
+| GET | `/admin/customers/deleted` | List soft-deleted customers with outstanding balances |
+| GET | `/admin/customers/create` | Create customer form (generates temp password) |
+| POST | `/admin/customers` | Store new customer (sets `password_change_required = true`) |
 | GET | `/admin/customers/{user}` | Customer detail — orders, totals, outstanding |
 | GET | `/admin/customers/{user}/edit` | Edit customer |
 | PUT | `/admin/customers/{user}` | Update customer |
-| DELETE | `/admin/customers/{user}` | Delete customer (with confirmation) |
+| DELETE | `/admin/customers/{user}` | Soft-delete customer (with confirmation) |
+| DELETE | `/admin/customers/{user}/force` | Permanently delete customer (only for soft-deleted, with confirmation) |
+| POST | `/admin/customers/{user}/restore` | Restore soft-deleted customer |
 
 #### Items
 | Method | Route | Notes |
@@ -288,22 +315,26 @@ All routes below are prefixed with `/admin` and protected by the `EnsureUserIsAd
 - Two clear CTAs: **"Logg inn"** (primary) and a secondary element (e.g., "Kontakt oss" or placeholder contact info).
 - Brief explanation of what the customer gets: oversikt over kjøp, utestående beløp, betalingshistorikk.
 - **No admin-specific information** is visible on this page.
-- Design tone: clean, trustworthy, slightly warm. Not corporate-cold.
+- Design tone: **personal, warm, and trustworthy**. Friendly business-to-consumer feel. Not corporate-cold.
 - Must be fully responsive.
 
 ### 6.2 Customer Dashboard (`/dashboard`)
+
+**If `password_change_required = true`:** Show a prominent alert/banner at the top: "Du må endre passordet ditt før du kan fortsette" with a link to profile/password change page. Optionally block access to other pages until changed.
+
 Three summary cards at the top:
 | Card | Value |
 |---|---|
-| Total kjøpt | Sum of `total_amount` across all orders |
-| Total betalt | Sum of all payments across all orders |
+| Total kjøpt | Sum of `total_amount` across all non-cancelled orders |
+| Total betalt | Sum of all payments across all non-cancelled orders |
 | Utestående | Total kjøpt − Total betalt |
 
-Below the cards: a list of **open orders** with a link to each order detail.
+Below the cards: a list of **open orders** with order number and a link to each order detail.
 
 ### 6.3 Customer Order Detail (`/orders/{order}`)
+- Display order number prominently (e.g., "Ordre #2025-001")
 - List of items (order lines) with name, price, quantity.
-- Payment history table: date, amount, note.
+- Payment history table: date, amount, payment method (if set), note.
 - Summary row: Total / Betalt / Utestående (using `format_nok`).
 
 ### 6.4 Admin Dashboard (`/admin`)
@@ -318,10 +349,11 @@ Key metrics displayed prominently:
 Below: a table of **top customers by outstanding balance** (e.g., top 5–10). Each row links to the customer detail page.
 
 ### 6.5 Admin Customer Detail (`/admin/customers/{user}`)
-- Customer info (name, email).
+- Customer info (name, email, account status).
+- If customer has `password_change_required = true`, show badge "Må endre passord ved neste innlogging"
 - **"Kopier link"** button that copies the customer's dashboard URL (`/dashboard`) to clipboard. Note: this link requires the customer to be logged in. It is not a public/shareable token.
 - Summary cards: Total kjøpt / Total betalt / Utestående (same as customer dashboard but shown from admin's view).
-- List of all orders for this customer, with status and outstanding per order.
+- List of all orders for this customer, with order number, status and outstanding per order.
 
 ### 6.6 General UI Rules
 - Use **Breeze's default layout** as the base. Keep it consistent.
@@ -350,6 +382,9 @@ Below: a table of **top customers by outstanding balance** (e.g., top 5–10). E
 - [ ] Do delete actions require a confirmation step?
 - [ ] Is CSRF protection active on all forms (standard Blade `@csrf`)?
 - [ ] Are N+1 queries prevented with `with()` / eager loading where relevant?
+- [ ] Are soft deletes implemented on `users`, `orders`, `items`, `order_lines`, and `payments`?
+- [ ] Is `password_change_required` enforced via middleware after login?
+- [ ] Are temporary passwords generated securely (random, not predictable)?
 
 ---
 
@@ -417,25 +452,25 @@ TASK_<N>_SUMMARY.md
 ### Task 1 — Foundation & Auth Lock-down
 | Sub-task | Description |
 |---|---|
-| 1.1 | Install and configure Laravel Breeze (Blade). **Disable / remove the public registration route.** |
-| 1.2 | Add `role` column to `users` table. Create `EnsureUserIsAdmin` middleware. |
+| 1.1 | ✅ **DONE** — Breeze is already installed. **Disable / remove the public registration route.** |
+| 1.2 | Add `role` and `password_change_required` columns to `users` table. Add `deleted_at` for soft deletes. Create `EnsureUserIsAdmin` middleware. Create `EnsurePasswordChanged` middleware. |
 | 1.3 | Create `AdminUserSeeder` — seeds one admin user with known credentials. |
-| 1.4 | Build the **landing page** (`/`). Set up post-login redirects: admin → `/admin`, customer → `/dashboard`. |
+| 1.4 | Build the **landing page** (`/`) with personal, warm tone. Set up post-login redirects: admin → `/admin`, customer → `/dashboard`. Handle password change requirement redirect. |
 | 1.5 | Create a basic `/dashboard` stub for customers and a basic `/admin` stub for admin (content added in later tasks). |
 
-**Deliverable:** Auth works. No signup. Admin and customer are gated to their own areas. Landing page is live.
+**Deliverable:** Auth works. No signup. Admin and customer are gated to their own areas. Password change enforcement works. Landing page is live.
 
 ---
 
 ### Task 2 — Data Model & Policies
 | Sub-task | Description |
 |---|---|
-| 2.1 | Create migrations: `items`, `orders`, `order_lines`, `payments`. Run migrations. |
-| 2.2 | Create Eloquent models with relations and `$fillable`. Add `format_nok()` helper. Add `getPaidAmountAttribute()` and `getOutstandingAmountAttribute()` accessors to `Order`. |
+| 2.1 | Create migrations: `items`, `orders` (with `order_number`), `order_lines`, `payments` (with `payment_method`). All include `deleted_at` for soft deletes. Run migrations. |
+| 2.2 | Create Eloquent models with relations, `$fillable`, and `SoftDeletes` trait. Add `format_nok()` helper. Add `getPaidAmountAttribute()` and `getOutstandingAmountAttribute()` accessors to `Order`. Add auto-generation of `order_number` on Order creation. |
 | 2.3 | Create `OrderPolicy`. Ensure customer routes use it. |
 | 2.4 | Write feature tests: customer cannot see another customer's order (403), admin can see all orders, guest is redirected to login on protected routes. |
 
-**Deliverable:** Database schema is correct. Relations work. Policies enforce access. Helper formats money. Tests pass.
+**Deliverable:** Database schema is correct with soft deletes. Relations work. Policies enforce access. Helper formats money. Order numbers auto-generate. Tests pass.
 
 ---
 
@@ -443,34 +478,35 @@ TASK_<N>_SUMMARY.md
 | Sub-task | Description |
 |---|---|
 | 3.1 | Build the **admin dashboard** with metrics: total outstanding, open orders count, customer count, items by status, top customers by outstanding. |
-| 3.2 | Build **Customers CRUD**: list, create, edit, view detail, delete (with confirmation modal). |
-| 3.3 | Build **Customer detail page**: summary cards, "Kopier link" button, order list with outstanding per order. |
+| 3.2 | Build **Customers CRUD**: list (active only), create (with temp password generation), edit, view detail, soft-delete (with confirmation modal). Show `password_change_required` badge on detail page. |
+| 3.3 | Build **Customer detail page**: summary cards, "Kopier link" button, order list with order numbers and outstanding per order. |
+| 3.4 | Build **Deleted customers view**: list soft-deleted customers with outstanding balances. Allow restore or permanent deletion (with confirmation). |
 
-**Deliverable:** Admin can manage customers and see key metrics.
+**Deliverable:** Admin can manage customers, generate temp passwords, and handle soft-deleted accounts. Key metrics visible.
 
 ---
 
 ### Task 4 — Admin: Items & Orders
 | Sub-task | Description |
 |---|---|
-| 4.1 | Build **Items CRUD**: list (with status badges), create, edit. Handle status transitions via UI. |
-| 4.2 | Build **Orders**: create (select customer), detail view, add order lines (select item, triggers `reserved` status). Handle auto-calculation of `total_amount` and the admin override field. |
-| 4.3 | Build **Payments**: add payment form on order detail, display payment history. |
-| 4.4 | Build **Close order** flow: button on order detail, confirms, sets order to `closed`, sets items to `sold`. Handle **cancel order** flow: sets order to `cancelled`, reverts items to `available`. |
-| 4.5 | Build **Delete order line** and **delete payment** (with confirmation modals). Update item status and totals accordingly. |
+| 4.1 | Build **Items CRUD**: list (with status badges), create, edit. Handle status transitions via UI. Implement soft deletes. |
+| 4.2 | Build **Orders**: create (select customer, auto-generate order_number), detail view (show order number), add order lines (select item + quantity, triggers `reserved` status). Handle auto-calculation of `total_amount` and the admin override field. Show overpayment warning if outstanding < 0. |
+| 4.3 | Build **Payments**: add payment form on order detail (with optional payment_method), display payment history with method. |
+| 4.4 | Build **Close order** flow: button on order detail, confirms, sets order to `closed`, sets items to `sold`. Handle **cancel order** flow: sets order to `cancelled`, soft-deletes order_lines and payments, reverts items to `available`. |
+| 4.5 | Build **Delete order line** and **delete payment** (with confirmation modals). Update item status and totals accordingly. Use soft deletes. |
 
-**Deliverable:** Admin can run the full workflow: create item → create order → add lines → register payments → close order.
+**Deliverable:** Admin can run the full workflow: create item → create order → add lines with quantity → register payments → close order. Cancellation properly cleans up.
 
 ---
 
 ### Task 5 — Customer Portal (Read-Only)
 | Sub-task | Description |
 |---|---|
-| 5.1 | Build **Customer dashboard** (`/dashboard`): three summary cards (Total kjøpt, Total betalt, Utestående) + list of open orders. |
-| 5.2 | Build **Customer orders list** (`/orders`): table of all own orders with status and outstanding. |
-| 5.3 | Build **Customer order detail** (`/orders/{order}`): items list, payment history, totals. Policy-protected. |
+| 5.1 | Build **Customer dashboard** (`/dashboard`): three summary cards (Total kjøpt, Total betalt, Utestående) + list of open orders with order numbers. Exclude cancelled orders. |
+| 5.2 | Build **Customer orders list** (`/orders`): table of all own orders (excluding cancelled) with order number, status and outstanding. |
+| 5.3 | Build **Customer order detail** (`/orders/{order}`): show order number, items list with quantity, payment history with method, totals. Policy-protected. |
 
-**Deliverable:** Customer can log in and see everything relevant to them — nothing more.
+**Deliverable:** Customer can log in and see everything relevant to them — nothing more. Order numbers displayed everywhere.
 
 ---
 
@@ -512,6 +548,12 @@ TASK_<N>_SUMMARY.md
 | Formatting money in the view | Inconsistent display, easy to forget øre → kr conversion | Always use `format_nok()` helper |
 | No empty states | Confusing blank pages for new users | Every list view must handle the zero-data state |
 | No confirmation before delete | Accidental data loss | Always show a confirmation modal before any destructive action |
+| Forgetting `SoftDeletes` trait | Hard deletes lose audit trail | Add `SoftDeletes` to all models with `deleted_at` |
+| Not enforcing password change | Customer keeps using temp password | Check `password_change_required` flag and redirect to password change |
+| Generating predictable temp passwords | Security risk | Use `Str::random(12)` or similar for temp passwords |
+| Not showing overpayment warnings | Admin doesn't notice negative outstanding | Show warning badge when `outstanding < 0` |
+| Including cancelled orders in customer totals | Inflates customer's debt incorrectly | Always filter out cancelled orders in customer-facing calculations |
+| Hard-deleting orders with payments | Loses financial audit trail | Use soft deletes and only hard-delete after admin review |
 
 ---
 
