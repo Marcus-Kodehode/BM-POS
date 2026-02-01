@@ -12,26 +12,26 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Secure authentication with role-based access and password change enforcement.
 
-- [ ] 1.1 Disable public registration route
+- [x] 1.1 Disable public registration route
   - Comment out or remove `Route::get('/register')` and `Route::post('/register')` in `routes/auth.php`
   - _Requirements: 1.4_
 
-- [ ] 1.2 Add user table columns
+- [x] 1.2 Add user table columns
   - Create migration to add `role` (string, default 'customer'), `password_change_required` (boolean, default false), `deleted_at` (timestamp, nullable)
   - Run migration
   - _Requirements: 1.5, 1.6, 9.1_
 
-- [ ] 1.3 Create middleware
+- [x] 1.3 Create middleware
   - Create `EnsureUserIsAdmin` middleware (checks `auth()->user()->isAdmin()`, aborts 403 if false)
   - Create `EnsurePasswordChanged` middleware (redirects to profile.edit if `password_change_required = true`)
   - Register both in `bootstrap/app.php`
   - _Requirements: 1.3, 1.6_
 
-- [ ] 1.4 Create AdminUserSeeder
+- [x] 1.4 Create AdminUserSeeder
   - Seed one admin user with known credentials (email: `admin@bmpos.no`, password: `password`, role: `admin`)
   - _Requirements: 2.1_
 
-- [ ] 1.5 Update User model
+- [x] 1.5 Update User model
   - Add `SoftDeletes` trait
   - Add `$fillable`: `name`, `email`, `password`, `role`, `password_change_required`
   - Add `$casts`: `password_change_required` => `boolean`
@@ -39,19 +39,19 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Add `orders()` relationship
   - _Requirements: 1.1, 2.1, 9.1_
 
-- [ ] 1.6 Set up post-login redirects
+- [x] 1.6 Set up post-login redirects
   - Modify `app/Http/Controllers/Auth/AuthenticatedSessionController.php`
   - Admin → `/admin`, Customer → `/dashboard`
   - _Requirements: 1.2_
 
-- [ ] 1.7 Create stub dashboards
+- [x] 1.7 Create stub dashboards
   - Create `/dashboard` route and view (customer dashboard stub)
   - Create `/admin` route and view (admin dashboard stub)
   - Apply `auth` middleware to `/dashboard`
   - Apply `auth` + `admin` middleware to `/admin`
   - _Requirements: 1.2, 1.3_
 
-- [ ] 1.8 Build landing page
+- [x] 1.8 Build landing page
   - Create modern, responsive landing page at `/`
   - Hero section with headline, subtext, "Logg inn" CTA
   - Features section (3 columns: order overview, balance tracking, payment history)

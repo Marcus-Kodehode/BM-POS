@@ -1,15 +1,36 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
+            Min Oversikt
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Password change alert -->
+            @if(auth()->user()->password_change_required)
+                <div class="mb-6 p-4 bg-warning-50 border border-warning-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-warning-800">
+                                Du må endre passordet ditt før du kan fortsette. 
+                                <a href="{{ route('profile.edit') }}" class="underline font-semibold">Endre passord nå</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+                    <h3 class="text-lg font-semibold mb-4">Velkommen til kundeportalen!</h3>
+                    <p class="text-gray-600">Her vil du kunne se dine ordre, betalinger og utestående beløp.</p>
+                    <p class="text-gray-500 text-sm mt-4">Innhold kommer snart...</p>
                 </div>
             </div>
         </div>

@@ -7,9 +7,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Customer dashboard
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'password.changed'])->name('dashboard');
+
+// Admin dashboard
+Route::get('/admin', function () {
+    return view('admin.dashboard');
+})->middleware(['auth', 'admin'])->name('admin.dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
