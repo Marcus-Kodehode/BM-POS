@@ -31,6 +31,11 @@ class ProfileController extends Controller
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
+        
+        // If password was changed, clear password_change_required flag
+        if ($request->filled('password')) {
+            $request->user()->password_change_required = false;
+        }
 
         $request->user()->save();
 

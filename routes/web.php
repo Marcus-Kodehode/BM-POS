@@ -14,9 +14,15 @@ Route::get('/', function () {
 });
 
 // Customer dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'password.changed'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\CustomerDashboardController::class, 'index'])
+    ->middleware(['auth', 'password.changed'])
+    ->name('dashboard');
+
+// Customer orders (read-only)
+Route::middleware(['auth', 'password.changed'])->prefix('customer')->name('customer.')->group(function () {
+    Route::get('/orders', [App\Http\Controllers\CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [App\Http\Controllers\CustomerOrderController::class, 'show'])->name('orders.show');
+});
 
 // Admin dashboard
 Route::get('/admin', [AdminDashboardController::class, 'index'])
