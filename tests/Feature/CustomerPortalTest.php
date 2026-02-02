@@ -90,7 +90,7 @@ class CustomerPortalTest extends TestCase
             'status' => 'open',
         ]);
 
-        $response = $this->actingAs($this->customer)->get(route('customer.orders.index'));
+        $response = $this->actingAs($this->customer)->get(route('orders.index'));
 
         $response->assertOk();
         $response->assertSee($order->order_number);
@@ -112,7 +112,7 @@ class CustomerPortalTest extends TestCase
             'unit_price' => 100000,
         ]);
 
-        $response = $this->actingAs($this->customer)->get(route('customer.orders.show', $order));
+        $response = $this->actingAs($this->customer)->get(route('orders.show', $order));
 
         $response->assertOk();
         $response->assertSee($order->order_number);
@@ -126,7 +126,7 @@ class CustomerPortalTest extends TestCase
             'status' => 'open',
         ]);
 
-        $response = $this->actingAs($this->customer)->get(route('customer.orders.show', $order));
+        $response = $this->actingAs($this->customer)->get(route('orders.show', $order));
 
         $response->assertForbidden();
     }

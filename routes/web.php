@@ -19,7 +19,7 @@ Route::get('/dashboard', [App\Http\Controllers\CustomerDashboardController::clas
     ->name('dashboard');
 
 // Customer orders (read-only)
-Route::middleware(['auth', 'password.changed'])->prefix('customer')->name('customer.')->group(function () {
+Route::middleware(['auth', 'password.changed'])->group(function () {
     Route::get('/orders', [App\Http\Controllers\CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [App\Http\Controllers\CustomerOrderController::class, 'show'])->name('orders.show');
 });
@@ -33,7 +33,7 @@ Route::get('/admin', [AdminDashboardController::class, 'index'])
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/customers/deleted', [CustomerController::class, 'deleted'])->name('customers.deleted');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
-    Route::delete('/customers/{id}/force', [CustomerController::class, 'forceDestroy'])->name('customers.force-destroy');
+    Route::delete('/customers/{id}/force', [CustomerController::class, 'forceDestroy'])->name('customers.forceDestroy');
     Route::resource('customers', CustomerController::class);
     
     // Items management

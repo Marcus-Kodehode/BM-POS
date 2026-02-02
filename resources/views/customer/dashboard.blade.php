@@ -46,7 +46,7 @@
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-900">Åpne ordrer</h3>
-                    <a href="{{ route('customer.orders.index') }}" 
+                    <a href="{{ route('orders.index') }}" 
                        class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                         Se alle ordrer →
                     </a>
@@ -86,7 +86,7 @@
                                             <div class="text-sm font-semibold text-gray-900">{{ format_nok($order->outstanding) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('customer.orders.show', $order) }}" 
+                                            <a href="{{ route('orders.show', $order) }}" 
                                                class="text-primary-600 hover:text-primary-700">
                                                 Se detaljer
                                             </a>

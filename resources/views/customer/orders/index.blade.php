@@ -48,7 +48,7 @@
                                             <div class="text-sm font-semibold text-gray-900">{{ format_nok($order->outstanding) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('customer.orders.show', $order) }}" 
+                                            <a href="{{ route('orders.show', $order) }}" 
                                                class="text-primary-600 hover:text-primary-700">
                                                 Se detaljer
                                             </a>
