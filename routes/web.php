@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\ItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +26,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
     Route::delete('/customers/{id}/force', [CustomerController::class, 'forceDestroy'])->name('customers.force-destroy');
     Route::resource('customers', CustomerController::class);
+    
+    // Items management
+    Route::resource('items', ItemController::class);
 });
 
 Route::middleware('auth')->group(function () {

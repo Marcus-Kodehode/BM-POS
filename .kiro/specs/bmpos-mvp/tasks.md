@@ -170,14 +170,14 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Admin can create, view, edit, and delete customers.
 
-- [ ] 4.1 Create customer list page
+- [x] 4.1 Create customer list page
   - Display all active customers (exclude soft-deleted)
   - Table: name, email, total outstanding, actions
   - "Ny kunde" button
   - Empty state: "Ingen kunder ennå"
   - _Requirements: 2.3_
 
-- [ ] 4.2 Create customer creation form
+- [x] 4.2 Create customer creation form
   - Fields: name, email
   - Generate secure random temp password (`Str::random(12)`)
   - Set `role = 'customer'`, `password_change_required = true`
@@ -185,7 +185,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Form Request validation
   - _Requirements: 2.1, 2.2, 10.1, 10.8_
 
-- [ ] 4.3 Create customer detail page
+- [x] 4.3 Create customer detail page
   - Customer info (name, email, status)
   - Badge if `password_change_required = true`: "Må endre passord"
   - "Kopier link" button (copies `/dashboard` URL to clipboard)
@@ -193,36 +193,36 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Table of all customer's orders (order number, status, outstanding)
   - _Requirements: 2.4, 2.5_
 
-- [ ] 4.4 Create customer edit form
+- [x] 4.4 Create customer edit form
   - Fields: name, email
   - Cannot change role or password (separate flows)
   - Form Request validation
   - _Requirements: 2.2_
 
-- [ ] 4.5 Implement customer soft delete
+- [x] 4.5 Implement customer soft delete
   - Confirmation modal: "Er du sikker?"
   - Soft delete (set `deleted_at`)
   - Flash message: "Kunde slettet"
   - _Requirements: 2.5, 9.1_
 
-- [ ] 4.6 Create deleted customers page
+- [x] 4.6 Create deleted customers page
   - List soft-deleted customers
   - Show outstanding balance
   - Actions: Restore, Permanent Delete
   - _Requirements: 2.6, 2.7, 9.3_
 
-- [ ] 4.7 Implement customer restore
+- [x] 4.7 Implement customer restore
   - Clear `deleted_at`
   - Flash message: "Kunde gjenopprettet"
   - _Requirements: 2.8_
 
-- [ ] 4.8 Implement customer permanent delete
+- [x] 4.8 Implement customer permanent delete
   - Confirmation modal: "Dette kan ikke angres!"
   - Hard delete (only for soft-deleted)
   - Flash message: "Kunde permanent slettet"
   - _Requirements: 2.7, 9.4_
 
-**Checkpoint:** Create a test customer, view detail, soft delete, restore, permanent delete.
+**Checkpoint:** Create a test customer, view detail, soft delete, restore, permanent delete. ✅ Complete
 
 ---
 
@@ -230,7 +230,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Admin can manage items with status tracking.
 
-- [ ] 5.1 Create item list page
+- [x] 5.1 Create item list page
   - Display all items (exclude soft-deleted)
   - Table: name, purchase price, target price, status badge, actions
   - "Ny vare" button
@@ -238,26 +238,26 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Empty state: "Ingen varer ennå"
   - _Requirements: 3.2_
 
-- [ ] 5.2 Create item creation form
+- [x] 5.2 Create item creation form
   - Fields: name, description, purchase_price, target_price
   - Default status: `available`
   - Form Request validation
   - _Requirements: 3.1, 10.1_
 
-- [ ] 5.3 Create item edit form
+- [x] 5.3 Create item edit form
   - Fields: name, description, purchase_price, target_price, status
   - Dropdown for status (available, reserved, sold, archived)
   - Warning if changing from `sold` or `archived` to `available`
   - Form Request validation
   - _Requirements: 3.2, 3.6_
 
-- [ ] 5.4 Implement item soft delete
+- [x] 5.4 Implement item soft delete
   - Confirmation modal
   - Soft delete (set `deleted_at`)
   - Flash message: "Vare slettet"
   - _Requirements: 9.1_
 
-**Checkpoint:** Create test items, edit status, verify status badges display correctly.
+**Checkpoint:** Create test items, edit status, verify status badges display correctly. ✅ Complete
 
 ---
 
