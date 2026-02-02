@@ -34,9 +34,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('items', ItemController::class);
     
     // Orders management
-    Route::post('/orders/{order}/close', [OrderController::class, 'close'])->name('orders.close');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::post('/orders/{order}/update-total', [OrderController::class, 'updateTotal'])->name('orders.update-total');
+    Route::patch('/orders/{order}/close', [OrderController::class, 'close'])->name('orders.close');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::patch('/orders/{order}/update-total', [OrderController::class, 'updateTotal'])->name('orders.update-total');
     Route::resource('orders', OrderController::class);
     
     // Order lines

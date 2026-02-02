@@ -265,7 +265,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Admin can create orders, add items, track payments, and close/cancel orders.
 
-- [ ] 6.1 Create order list page
+- [x] 6.1 Create order list page
   - Display all orders
   - Table: order number, customer name, status badge, outstanding, actions
   - Filter by status (open, closed, cancelled)
@@ -273,7 +273,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Empty state: "Ingen ordrer ennå"
   - _Requirements: 4.2_
 
-- [ ] 6.2 Create order creation form
+- [x] 6.2 Create order creation form
   - Select customer (dropdown)
   - Optional notes field
   - Auto-generate `order_number` on save
@@ -281,7 +281,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Form Request validation
   - _Requirements: 4.1, 4.2, 10.1_
 
-- [ ] 6.3 Create order detail page
+- [x] 6.3 Create order detail page
   - Display order number prominently
   - Customer info with link to customer detail
   - Order lines table: item name, unit price, quantity, total
@@ -293,45 +293,45 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Actions: Close order, Cancel order
   - _Requirements: 4.6, 4.7, 5.4, 5.5_
 
-- [ ] 6.4 Implement add order line
+- [x] 6.4 Implement add order line
   - Modal/form: select item (only available items), quantity, unit price (pre-filled from item.target_price)
   - On save: create order_line, set item status to `reserved`, recalculate order.total_amount
   - Form Request validation
   - _Requirements: 3.3, 4.3, 4.4_
 
-- [ ] 6.5 Implement delete order line
+- [x] 6.5 Implement delete order line
   - Confirmation modal
   - Soft delete order_line
   - Revert item status to `available`
   - Recalculate order.total_amount
   - _Requirements: 4.10_
 
-- [ ] 6.6 Implement manual total_amount override
+- [x] 6.6 Implement manual total_amount override
   - Editable field on order detail page
   - Show both auto-calculated and overridden amounts if different
   - Display: "Auto: X kr" and "Overstyrt: Y kr"
   - _Requirements: 4.5_
 
-- [ ] 6.7 Implement register payment
+- [x] 6.7 Implement register payment
   - Modal/form: amount, paid_at (date), payment_method (optional), note (optional)
   - On save: create payment, recalculate outstanding
   - Form Request validation
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 6.8 Implement delete payment
+- [x] 6.8 Implement delete payment
   - Confirmation modal
   - Soft delete payment
   - Recalculate outstanding
   - _Requirements: 4.11, 5.6_
 
-- [ ] 6.9 Implement close order
+- [x] 6.9 Implement close order
   - Confirmation modal: "Lukk ordre?"
   - Set order.status to `closed`
   - Set all items in order to `sold`
   - Flash message: "Ordre lukket"
   - _Requirements: 4.8, 3.4_
 
-- [ ] 6.10 Implement cancel order
+- [x] 6.10 Implement cancel order
   - Confirmation modal: "Kanseller ordre? Dette vil fjerne alle linjer og betalinger."
   - Set order.status to `cancelled`
   - Soft delete all order_lines
@@ -340,7 +340,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Flash message: "Ordre kansellert"
   - _Requirements: 4.9, 3.5_
 
-**Checkpoint:** Create order, add items, register payments, verify outstanding calculation, close order, verify items marked as sold.
+**Checkpoint:** Create order, add items, register payments, verify outstanding calculation, close order, verify items marked as sold. ✅ Complete
 
 ---
 
