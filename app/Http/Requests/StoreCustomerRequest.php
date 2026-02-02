@@ -29,6 +29,7 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users|regex:/^[a-zA-Z0-9_]+$/',
             'email' => 'nullable|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
         ];
@@ -41,20 +42,21 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name.required' => 'Navn er påkrevd.',
+            'username.unique' => 'Dette brukernavnet er allerede i bruk.',
+            'username.regex' => 'Brukernavn kan kun inneholde bokstaver, tall og understrek.',
             'email.email' => 'E-post må være en gyldig e-postadresse.',
             'email.unique' => 'Denne e-postadressen er allerede i bruk.',
         ];
     }
 
     /**
-     * Validate that at least one contact method is provided
+     * Validate that at least username or contact method is provided
      */
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if (empty($this->email) && empty($this->phone)) {
-                $validator->errors()->add('email', 'Du må oppgi minst e-post eller telefonnummer.');
-                $validator->errors()->add('phone', 'Du må oppgi minst e-post eller telefonnummer.');
+            if (empty($this->username) && empty($this->email) && empty($this->phone)) {
+                $validator->errors()->add('username', 'Du må oppgi minst brukernavn, e-post eller telefonnummer.');
             }
         });
     }

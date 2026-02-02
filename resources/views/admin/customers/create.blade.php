@@ -31,10 +31,27 @@
                     @enderror
                 </div>
 
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                        Brukernavn
+                    </label>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           value="{{ old('username') }}"
+                           placeholder="f.eks. johndoe"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150 @error('username') border-danger-500 @enderror">
+                    @error('username')
+                        <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-500">Brukes for innlogging. Må være unikt.</p>
+                </div>
+
                 <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-                        E-post
+                        E-post (valgfritt)
                     </label>
                     <input type="email" 
                            id="email" 
@@ -49,7 +66,7 @@
                 <!-- Phone -->
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-                        Telefonnummer
+                        Telefonnummer (valgfritt)
                     </label>
                     <input type="text" 
                            id="phone" 
@@ -60,7 +77,6 @@
                     @error('phone')
                         <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-500">Du må oppgi minst e-post eller telefonnummer.</p>
                 </div>
 
                 <!-- Info box -->

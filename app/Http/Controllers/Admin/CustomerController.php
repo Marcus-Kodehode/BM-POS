@@ -65,6 +65,7 @@ class CustomerController extends Controller
 
         $customer = User::create([
             'name' => $validated['name'],
+            'username' => $validated['username'] ?? null,
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'password' => Hash::make($tempPassword),

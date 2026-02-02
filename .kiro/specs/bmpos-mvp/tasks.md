@@ -390,7 +390,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Comprehensive validation, error handling, and UI polish.
 
-- [ ] 8.1 Create Form Request classes
+- [x] 8.1 Create Form Request classes
   - `StoreCustomerRequest`
   - `UpdateCustomerRequest`
   - `StoreItemRequest`
@@ -401,38 +401,38 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - All with Norwegian error messages
   - _Requirements: 10.1, 10.2_
 
-- [ ] 8.2 Add empty states to all list views
+- [x] 8.2 Add empty states to all list views
   - Friendly message + relevant action button
   - Consistent styling across all pages
   - _Requirements: Design system_
 
-- [ ] 8.3 Add confirmation modals to all delete actions
+- [x] 8.3 Add confirmation modals to all delete actions
   - Use Alpine.js for modal toggle
   - Consistent styling
   - _Requirements: 10.9_
 
-- [ ] 8.4 Add flash messages
+- [x] 8.4 Add flash messages
   - Success (green), Error (red), Warning (yellow)
   - Auto-dismiss after 5 seconds
   - Slide-down animation
   - _Requirements: Design system_
 
-- [ ] 8.5 Implement eager loading
+- [x] 8.5 Implement eager loading
   - Use `with()` on order queries to prevent N+1
   - Load `orderLines.item`, `payments`, `customer` where needed
   - _Requirements: 10.11_
 
-- [ ] 8.6 Add CSRF protection verification
+- [x] 8.6 Add CSRF protection verification
   - Ensure all forms have `@csrf`
   - _Requirements: 10.3_
 
-- [ ] 8.7 Test responsive design
+- [x] 8.7 Test responsive design
   - Test all pages on mobile, tablet, desktop
   - Fix any layout issues
   - Ensure modals work on mobile
   - _Requirements: 7.6_
 
-- [ ] 8.8 Create DevDataSeeder
+- [x] 8.8 Create DevDataSeeder
   - Seed 3-4 test customers
   - Seed 5-6 test items
   - Seed several orders in different states (open, closed, cancelled)
@@ -447,24 +447,24 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Automated tests for critical functionality.
 
-- [ ] 9.1 Write auth tests
+- [x] 9.1 Write auth tests
   - Test login redirects (admin → `/admin`, customer → `/dashboard`)
   - Test customer cannot access `/admin/*` (403)
   - Test guest redirected to login on protected routes
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 9.2 Write policy tests
+- [x] 9.2 Write policy tests
   - Test customer cannot view another customer's order (403)
   - Test admin can view all orders
   - _Requirements: 6.6, 10.4_
 
-- [ ] 9.3 Write order calculation tests
+- [x] 9.3 Write order calculation tests
   - Test outstanding balance calculation
   - Test overpayment detection
   - Test total_amount recalculation on order line add/delete
   - _Requirements: 4.3, 4.7, 5.4, 5.5_
 
-- [ ] 9.4 Write soft delete tests
+- [x] 9.4 Write soft delete tests
   - Test soft-deleted records excluded from queries
   - Test restore functionality
   - Test permanent delete
@@ -478,7 +478,7 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Documentation and configuration for production deployment.
 
-- [ ] 10.1 Create DEPLOY.md
+- [x] 10.1 Create DEPLOY.md
   - Step-by-step guide for Neon + Laravel Cloud
   - Environment variable setup
   - SSL/TLS configuration (`DB_SSLMODE=require`)
@@ -486,12 +486,12 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Seeding admin user in production
   - _Requirements: Deployment_
 
-- [ ] 10.2 Update .env.example
+- [x] 10.2 Update .env.example
   - Add all required variables
   - Add comments for production values
   - _Requirements: Deployment_
 
-- [ ] 10.3 Create production checklist
+- [x] 10.3 Create production checklist
   - Verify all routes protected
   - Verify all forms validated
   - Verify CSRF protection
@@ -499,14 +499,14 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Test admin and customer flows
   - _Requirements: Security checklist_
 
-- [ ] 10.4 Update README.md
+- [x] 10.4 Update README.md
   - Project description
   - Local setup instructions
   - Seeder instructions
   - Test credentials
   - _Requirements: Documentation_
 
-**Checkpoint:** Follow DEPLOY.md locally to verify instructions are complete and accurate.
+**Checkpoint:** Follow DEPLOY.md locally to verify instructions are complete and accurate. ✅ Complete
 
 ---
 
