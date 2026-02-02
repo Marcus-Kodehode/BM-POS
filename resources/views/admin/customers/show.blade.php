@@ -158,30 +158,44 @@
     </div>
 
     <!-- Delete confirmation modal -->
-    <div id="deleteModal" class="fixed inset-0 z-50 overflow-y-auto hidden" x-data="{ open: false }" x-show="open" style="display: none;">
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" @click="open = false"></div>
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Slett kunde?</h3>
-                <p class="text-sm text-gray-600 mb-6">
-                    Er du sikker på at du vil slette denne kunden? Kunden kan gjenopprettes senere.
-                </p>
-                <div class="flex justify-end space-x-3">
-                    <button @click="open = false" 
-                            class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Avbryt
-                    </button>
-                    <form method="POST" action="{{ route('admin.customers.destroy', $customer) }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" 
-                                class="px-4 py-2 bg-danger-600 text-white rounded-lg hover:bg-danger-700">
-                            Slett
+    <div x-data="{ showDeleteModal: false }">
+        <div x-show="showDeleteModal" 
+             class="fixed inset-0 z-50 overflow-y-auto" 
+             style="display: none;"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" @click="showDeleteModal = false"></div>
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+                     @click.away="showDeleteModal = false">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Slett kunde?</h3>
+                    <p class="text-sm text-gray-600 mb-6">
+                        Er du sikker på at du vil slette denne kunden? Kunden kan gjenopprettes senere.
+                    </p>
+                    <div class="flex justify-end space-x-3">
+                        <button @click="showDeleteModal = false" 
+                                class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Avbryt
                         </button>
-                    </form>
+                        <form method="POST" action="{{ route('admin.customers.destroy', $customer) }}" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-danger-600 text-white rounded-lg hover:bg-danger-700">
+                                Slett
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Trigger button (hidden, called from script) -->
+        <button @click="showDeleteModal = true" id="deleteModalTrigger" class="hidden"></button>
     </div>
 
     <script>
@@ -199,9 +213,7 @@
         }
 
         function confirmDelete() {
-            const modal = document.getElementById('deleteModal');
-            modal.classList.remove('hidden');
-            modal.setAttribute('x-data', '{ open: true }');
+            document.getElementById('deleteModalTrigger').click();
         }
     </script>
 </x-admin-layout>
