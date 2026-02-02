@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Admin\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,6 +18,14 @@ Route::get('/dashboard', function () {
 Route::get('/admin', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'admin'])
     ->name('admin.dashboard');
+
+// Admin customer management
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/customers/deleted', [CustomerController::class, 'deleted'])->name('customers.deleted');
+    Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+    Route::delete('/customers/{id}/force', [CustomerController::class, 'forceDestroy'])->name('customers.force-destroy');
+    Route::resource('customers', CustomerController::class);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

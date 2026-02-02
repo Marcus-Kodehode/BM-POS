@@ -42,8 +42,8 @@
                         Dashboard
                     </a>
 
-                    <a href="#" 
-                       class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-150 text-gray-700 hover:bg-gray-50">
+                    <a href="{{ route('admin.customers.index') }}" 
+                       class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-150 {{ request()->routeIs('admin.customers.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-gray-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
@@ -127,6 +127,43 @@
 
                 <!-- Page content -->
                 <main class="p-4 sm:p-6 lg:p-8">
+                    <!-- Flash messages -->
+                    @if(session('success'))
+                        <div class="mb-6 p-4 bg-success-50 border border-success-200 rounded-lg" x-data="{ show: true }" x-show="show">
+                            <div class="flex justify-between items-start">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-success-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="text-sm font-medium text-success-800">{{ session('success') }}</p>
+                                </div>
+                                <button @click="show = false" class="text-success-600 hover:text-success-700">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg" x-data="{ show: true }" x-show="show">
+                            <div class="flex justify-between items-start">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-danger-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <p class="text-sm font-medium text-danger-800">{{ session('error') }}</p>
+                                </div>
+                                <button @click="show = false" class="text-danger-600 hover:text-danger-700">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
                     {{ $slot }}
                 </main>
             </div>
