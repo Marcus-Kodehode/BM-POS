@@ -19,7 +19,7 @@ BMPOS is a simple, secure order and payment tracking system for second-hand stor
 
 ## Tech Stack
 
-- **Backend**: Laravel 11, PHP 8.2+
+- **Backend**: Laravel 12, PHP 8.2+
 - **Database**: PostgreSQL (local or Neon)
 - **Frontend**: Blade templates, Tailwind CSS, Alpine.js
 - **Authentication**: Laravel Breeze
