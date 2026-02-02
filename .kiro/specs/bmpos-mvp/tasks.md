@@ -348,21 +348,21 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
 
 **Goal:** Customers can view their orders and balance.
 
-- [ ] 7.1 Create customer dashboard
+- [x] 7.1 Create customer dashboard
   - Password change alert banner if `password_change_required = true`
   - 3 summary cards: Total kjøpt, Total betalt, Utestående (exclude cancelled orders)
   - Table of open orders: order number, status badge, outstanding, link to detail
   - Empty state: "Ingen åpne ordrer"
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 7.2 Create customer orders list page
+- [x] 7.2 Create customer orders list page
   - Table of all customer's orders (exclude cancelled)
   - Columns: order number, status badge, outstanding
   - Link to order detail
   - Empty state: "Ingen ordrer ennå"
   - _Requirements: 6.4_
 
-- [ ] 7.3 Create customer order detail page
+- [x] 7.3 Create customer order detail page
   - Display order number
   - Items table: name, unit price, quantity, total
   - Payment history table: date, amount, method, note
@@ -371,12 +371,12 @@ This implementation plan breaks down the BMPOS MVP into discrete, testable tasks
   - Apply OrderPolicy (403 if not owner)
   - _Requirements: 6.5, 6.6, 6.7_
 
-- [ ] 7.4 Update profile page for password change
+- [x] 7.4 Update profile page for password change
   - Show alert if `password_change_required = true`
   - On password update, set `password_change_required = false`
   - _Requirements: 1.7_
 
-- [ ] 7.5 Implement customer account deletion
+- [x] 7.5 Implement customer account deletion
   - Confirmation modal with outstanding balance warning
   - Soft delete user account
   - Flash message: "Konto slettet"

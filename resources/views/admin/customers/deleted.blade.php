@@ -43,7 +43,10 @@
                                     <div class="text-sm font-medium text-gray-900">{{ $customer->name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500">{{ $customer->email }}</div>
+                                    <div class="text-sm text-gray-500">{{ $customer->email ?? '-' }}</div>
+                                    @if($customer->phone)
+                                        <div class="text-xs text-gray-400">{{ $customer->phone }}</div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <div class="text-sm font-semibold text-gray-900">{{ format_nok($customer->outstanding) }}</div>

@@ -43,7 +43,12 @@
     <div class="flex justify-between items-start mb-6">
         <div>
             <h2 class="text-2xl font-semibold text-gray-900">{{ $customer->name }}</h2>
-            <p class="mt-1 text-sm text-gray-600">{{ $customer->email }}</p>
+            @if($customer->email)
+                <p class="mt-1 text-sm text-gray-600">{{ $customer->email }}</p>
+            @endif
+            @if($customer->phone)
+                <p class="mt-1 text-sm text-gray-600">{{ $customer->phone }}</p>
+            @endif
             @if($customer->password_change_required)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800 mt-2">
                     Må endre passord
