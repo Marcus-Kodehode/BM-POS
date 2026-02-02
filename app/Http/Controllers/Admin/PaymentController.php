@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePaymentRequest;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -18,20 +19,9 @@ class PaymentController extends Controller
     /**
      * Store a newly created payment
      */
-    public function store(Request $request, Order $order)
+    public function store(StorePaymentRequest $request, Order $order)
     {
-        $validated = $request->validate([
-            'amount' => 'required|integer|min:1',
-            'paid_at' => 'required|date',
-            'payment_method' => 'nullable|string|max:255',
-            'note' => 'nullable|string',
-        ], [
-            'amount.required' => 'Beløp er påkrevd.',
-            'amount.integer' => 'Beløp må være et tall (i øre).',
-            'amount.min' => 'Beløp må være minst 1 øre.',
-            'paid_at.required' => 'Betalingsdato er påkrevd.',
-            'paid_at.date' => 'Betalingsdato må være en gyldig dato.',
-        ]);
+        $validated = $request->validated();
 
         $validated['order_id'] = $order->id;
 

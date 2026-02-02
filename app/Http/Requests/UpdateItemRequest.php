@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * File: app/Http/Requests/UpdateItemRequest.php
+ * Purpose: Validation rules for updating an existing item
+ * Dependencies: Illuminate\Foundation\Http\FormRequest
+ */
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateItemRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'purchase_price' => 'nullable|integer|min:0',
+            'target_price' => 'nullable|integer|min:0',
+            'status' => 'required|in:available,reserved,sold,archived',
+        ];
+    }
+
+    /**
+     * Get custom validation messages
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Navn er påkrevd.',
+            'purchase_price.integer' => 'Innkjøpspris må være et tall (i øre).',
+            'purchase_price.min' => 'Innkjøpspris kan ikke være negativ.',
+            'target_price.integer' => 'Målpris må være et tall (i øre).',
+            'target_price.min' => 'Målpris kan ikke være negativ.',
+            'status.required' => 'Status er påkrevd.',
+            'status.in' => 'Ugyldig status valgt.',
+        ];
+    }
+}
+
+/**
+ * Summary: Form Request for item updates with Norwegian error messages and status validation
+ */

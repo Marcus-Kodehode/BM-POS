@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Item;
@@ -21,7 +22,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['customer', 'orderLines', 'payments']);
+        $query = Order::with(['customer', 'orderLines.item', 'payments']);
 
         // Filter by status if provided
         if ($request->has('status') && $request->status !== 'all') {
@@ -54,15 +55,9 @@ class OrderController extends Controller
     /**
      * Store a newly created order
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:users,id',
-            'notes' => 'nullable|string',
-        ], [
-            'customer_id.required' => 'Du må velge en kunde.',
-            'customer_id.exists' => 'Valgt kunde finnes ikke.',
-        ]);
+        $validated = $request->validated();
 
         $validated['status'] = 'open';
         $validated['total_amount'] = 0;

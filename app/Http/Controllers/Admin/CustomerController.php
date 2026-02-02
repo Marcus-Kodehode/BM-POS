@@ -9,6 +9,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -54,25 +56,9 @@ class CustomerController extends Controller
     /**
      * Store a newly created customer
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users',
-            'phone' => 'nullable|string|max:20',
-        ], [
-            'name.required' => 'Navn er påkrevd.',
-            'email.email' => 'E-post må være en gyldig e-postadresse.',
-            'email.unique' => 'Denne e-postadressen er allerede i bruk.',
-        ]);
-        
-        // Validate that at least one contact method is provided
-        if (empty($validated['email']) && empty($validated['phone'])) {
-            return back()->withErrors([
-                'email' => 'Du må oppgi minst e-post eller telefonnummer.',
-                'phone' => 'Du må oppgi minst e-post eller telefonnummer.',
-            ])->withInput();
-        }
+        $validated = $request->validated();
 
         // Generate secure random temporary password
         $tempPassword = Str::random(12);
@@ -141,25 +127,9 @@ class CustomerController extends Controller
     /**
      * Update the specified customer
      */
-    public function update(Request $request, User $customer)
+    public function update(UpdateCustomerRequest $request, User $customer)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users,email,' . $customer->id,
-            'phone' => 'nullable|string|max:20',
-        ], [
-            'name.required' => 'Navn er påkrevd.',
-            'email.email' => 'E-post må være en gyldig e-postadresse.',
-            'email.unique' => 'Denne e-postadressen er allerede i bruk.',
-        ]);
-        
-        // Validate that at least one contact method is provided
-        if (empty($validated['email']) && empty($validated['phone'])) {
-            return back()->withErrors([
-                'email' => 'Du må oppgi minst e-post eller telefonnummer.',
-                'phone' => 'Du må oppgi minst e-post eller telefonnummer.',
-            ])->withInput();
-        }
+        $validated = $request->validated();
 
         $customer->update($validated);
 

@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOrderLineRequest;
 use App\Models\Order;
 use App\Models\OrderLine;
 use Illuminate\Http\Request;
@@ -18,21 +19,9 @@ class OrderLineController extends Controller
     /**
      * Store a newly created order line
      */
-    public function store(Request $request, Order $order)
+    public function store(StoreOrderLineRequest $request, Order $order)
     {
-        $validated = $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|integer|min:0',
-        ], [
-            'item_id.required' => 'Du må velge en vare.',
-            'item_id.exists' => 'Valgt vare finnes ikke.',
-            'quantity.required' => 'Antall er påkrevd.',
-            'quantity.min' => 'Antall må være minst 1.',
-            'unit_price.required' => 'Enhetspris er påkrevd.',
-            'unit_price.integer' => 'Enhetspris må være et tall (i øre).',
-            'unit_price.min' => 'Enhetspris kan ikke være negativ.',
-        ]);
+        $validated = $request->validated();
 
         $validated['order_id'] = $order->id;
 
